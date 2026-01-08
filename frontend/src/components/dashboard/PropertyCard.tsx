@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapPin, Bed, Bath, Square, Users, Star } from 'lucide-react'
+import { MapPin, Bed, Bath, Square, Users, Star, Building2 } from 'lucide-react'
 
 interface PropertyCardProps {
   property: any
@@ -17,7 +17,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full manyani-gradient-bg flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-manyani-brown to-manyani-green flex items-center justify-center">
             <div className="text-white text-center">
               <Building2 className="h-12 w-12 mx-auto mb-2" />
               <span className="font-bold">{property.name}</span>

@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   nationalIdPhoto: {
     type: String,
-    required: [true, 'National ID photo is required']
+    default: '' // Changed from required to optional
   },
   dateOfBirth: {
     type: Date,

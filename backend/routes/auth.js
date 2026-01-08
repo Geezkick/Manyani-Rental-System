@@ -10,12 +10,13 @@ const {
   forgotPassword,
   resetPassword,
   verifyEmail,
-  uploadProfilePicture
+  uploadProfilePicture,
+  uploadNationalId
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { validate } = require('../middleware/validation');
 const { authValidation } = require('../middleware/validation');
-const { uploadProfilePicture: uploadMiddleware } = require('../middleware/upload');
+const { uploadProfilePicture: uploadProfileMiddleware, uploadNationalId: uploadNationalIdMiddleware } = require('../middleware/upload');
 
 // Public routes
 router.post('/register', validate(authValidation.register), register);
@@ -28,7 +29,8 @@ router.get('/verify-email/:token', verifyEmail);
 router.get('/me', protect, getMe);
 router.put('/profile', protect, validate(authValidation.updateProfile), updateProfile);
 router.put('/change-password', protect, changePassword);
-router.post('/upload-profile', protect, uploadMiddleware, uploadProfilePicture);
+router.post('/upload-profile', protect, uploadProfileMiddleware, uploadProfilePicture);
+router.post('/upload-national-id', protect, uploadNationalIdMiddleware, uploadNationalId);
 router.post('/logout', protect, logout);
 
 module.exports = router;

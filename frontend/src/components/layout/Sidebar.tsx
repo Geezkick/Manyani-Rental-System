@@ -14,7 +14,8 @@ import {
   Shield,
   LogOut,
   X,
-  Globe
+  Globe,
+  Sparkles
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -27,6 +28,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
+    { name: 'Features', href: '/features', icon: Sparkles },
     { name: 'Properties', href: '/properties', icon: Building2 },
     { name: 'Bookings', href: '/bookings', icon: Calendar },
     { name: 'Payments', href: '/payments', icon: CreditCard },

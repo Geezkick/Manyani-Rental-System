@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Bell, Menu, Search, Moon, Sun } from 'lucide-react'
+import { Bell, Menu, Search, Moon, Sun, Plus, Zap } from 'lucide-react'
 import { useAuthStore } from '../../context/authStore'
+import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 interface NavbarProps {
@@ -11,6 +12,7 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [darkMode, setDarkMode] = useState(false)
   const { user } = useAuthStore()
+  const navigate = useNavigate()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,6 +29,18 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
     } else {
       document.documentElement.classList.remove('dark')
     }
+  }
+
+  const handleQuickPay = () => {
+    // Navigate to features page with quick pay tab
+    navigate('/features')
+    toast.success('Opening Quick Pay')
+  }
+
+  const handleNewBooking = () => {
+    // Navigate to features page with new booking tab
+    navigate('/features')
+    toast.success('Opening New Booking')
   }
 
   return (
@@ -85,10 +99,18 @@ const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
 
             {/* Quick actions */}
             <div className="hidden md:flex items-center space-x-2">
-              <button className="btn-outline text-sm px-4 py-2">
+              <button 
+                onClick={handleQuickPay}
+                className="btn-outline text-sm px-4 py-2 flex items-center"
+              >
+                <Zap className="h-4 w-4 mr-1" />
                 Quick Pay
               </button>
-              <button className="btn-primary text-sm px-4 py-2">
+              <button 
+                onClick={handleNewBooking}
+                className="btn-primary text-sm px-4 py-2 flex items-center"
+              >
+                <Plus className="h-4 w-4 mr-1" />
                 New Booking
               </button>
             </div>

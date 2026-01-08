@@ -19,7 +19,7 @@ exports.register = asyncHandler(async (req, res) => {
     throw new ErrorResponse('User with this email, phone or national ID already exists', 400);
   }
 
-  // Create user
+  // Create user without requiring nationalIdPhoto
   const user = await User.create({
     firstName,
     lastName,
@@ -29,7 +29,8 @@ exports.register = asyncHandler(async (req, res) => {
     nationalId,
     dateOfBirth,
     gender,
-    isVerified: false
+    isVerified: false,
+    nationalIdPhoto: req.body.nationalIdPhoto || '' // Make it optional
   });
 
   // Generate verification token
@@ -44,7 +45,7 @@ exports.register = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    message: 'Registration successful. Please check your email for verification.',
+    message: 'Registration successful.',
     token: verificationToken,
     user: {
       id: user._id,
@@ -186,6 +187,27 @@ exports.uploadProfilePicture = asyncHandler(async (req, res) => {
     success: true,
     message: 'Profile picture uploaded successfully',
     profilePicture: user.profilePicture
+  });
+});
+
+// @desc    Upload national ID photo
+// @route   POST /api/auth/upload-national-id
+// @access  Private
+exports.uploadNationalId = asyncHandler(async (req, res) => {
+  if (!req.file) {
+    throw new ErrorResponse('Please upload a file', 400);
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { nationalIdPhoto: `/uploads/documents/id-cards/${req.file.filename}` },
+    { new: true }
+  );
+
+  res.json({
+    success: true,
+    message: 'National ID photo uploaded successfully',
+    nationalIdPhoto: user.nationalIdPhoto
   });
 });
 

@@ -1,5 +1,4 @@
 require('dotenv').config();
-const axios = require('axios');
 const crypto = require('crypto');
 
 class MpesaService {
@@ -13,26 +12,16 @@ class MpesaService {
     this.tokenExpiry = null;
   }
 
-  // Generate access token
+  // Generate access token (mock for development)
   async generateAccessToken() {
     try {
-      const auth = Buffer.from(`${this.consumerKey}:${this.consumerSecret}`).toString('base64');
-      
-      const response = await axios.get(
-        'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
-        {
-          headers: {
-            Authorization: `Basic ${auth}`
-          }
-        }
-      );
-
-      this.accessToken = response.data.access_token;
-      this.tokenExpiry = Date.now() + (response.data.expires_in * 1000);
+      // Mock token generation for development
+      this.accessToken = 'mock_access_token_' + Date.now();
+      this.tokenExpiry = Date.now() + (3600 * 1000); // 1 hour
       
       return this.accessToken;
     } catch (error) {
-      console.error('Error generating access token:', error.response?.data || error.message);
+      console.error('Error generating access token:', error.message);
       throw error;
     }
   }
@@ -52,101 +41,66 @@ class MpesaService {
     return { password, timestamp };
   }
 
-  // Initiate STK Push (Lipana na M-Pesa)
+  // Initiate STK Push (Lipana na M-Pesa) - Mock for development
   async initiateSTKPush(phoneNumber, amount, accountReference, description) {
     try {
       const token = await this.getValidToken();
       const { password, timestamp } = this.generatePassword();
 
-      const payload = {
-        BusinessShortCode: this.shortCode,
-        Password: password,
-        Timestamp: timestamp,
-        TransactionType: 'CustomerPayBillOnline',
-        Amount: amount,
-        PartyA: phoneNumber,
-        PartyB: this.shortCode,
-        PhoneNumber: phoneNumber,
-        CallBackURL: this.callbackURL,
-        AccountReference: accountReference || 'MANYANI-RENT',
-        TransactionDesc: description || 'Rental Payment'
+      // Mock response for development
+      const mockResponse = {
+        MerchantRequestID: 'mock-' + Date.now(),
+        CheckoutRequestID: 'mock-checkout-' + Date.now(),
+        ResponseCode: '0',
+        ResponseDescription: 'Success. Request accepted for processing',
+        CustomerMessage: 'Success. Request accepted for processing'
       };
 
-      const response = await axios.post(
-        'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      console.log(`[M-Pesa Mock] STK Push initiated for ${phoneNumber}, Amount: ${amount}, Reference: ${accountReference}`);
 
-      return response.data;
+      return mockResponse;
     } catch (error) {
-      console.error('Error initiating STK Push:', error.response?.data || error.message);
-      throw error;
+      console.error('[M-Pesa Mock] Error initiating STK Push:', error.message);
+      throw new Error('Failed to initiate M-Pesa payment (mock mode)');
     }
   }
 
-  // Query STK Push status
+  // Query STK Push status - Mock for development
   async querySTKPushStatus(checkoutRequestID) {
     try {
-      const token = await this.getValidToken();
-      const { password, timestamp } = this.generatePassword();
-
-      const payload = {
-        BusinessShortCode: this.shortCode,
-        Password: password,
-        Timestamp: timestamp,
-        CheckoutRequestID: checkoutRequestID
+      // Mock response
+      const mockResponse = {
+        ResponseCode: '0',
+        ResponseDescription: 'The service request has been accepted successfully',
+        MerchantRequestID: 'mock-' + Date.now(),
+        CheckoutRequestID: checkoutRequestID,
+        ResultCode: '0',
+        ResultDesc: 'The service request is processed successfully.'
       };
 
-      const response = await axios.post(
-        'https://sandbox.safaricom.co.ke/mpesa/stkpushquery/v1/query',
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      console.log(`[M-Pesa Mock] Querying status for: ${checkoutRequestID}`);
 
-      return response.data;
+      return mockResponse;
     } catch (error) {
-      console.error('Error querying STK Push status:', error.response?.data || error.message);
+      console.error('[M-Pesa Mock] Error querying STK Push status:', error.message);
       throw error;
     }
   }
 
-  // C2B (Customer to Business) registration
+  // C2B (Customer to Business) registration - Mock
   async registerC2BUrls() {
     try {
-      const token = await this.getValidToken();
-
-      const payload = {
-        ShortCode: this.shortCode,
-        ResponseType: 'Completed',
-        ConfirmationURL: `${process.env.BACKEND_URL}/api/payments/mpesa/confirmation`,
-        ValidationURL: `${process.env.BACKEND_URL}/api/payments/mpesa/validation`
+      // Mock response
+      const mockResponse = {
+        ResponseCode: '0',
+        ResponseDescription: 'success'
       };
 
-      const response = await axios.post(
-        'https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl',
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      console.log('[M-Pesa Mock] C2B URLs registered');
 
-      return response.data;
+      return mockResponse;
     } catch (error) {
-      console.error('Error registering C2B URLs:', error.response?.data || error.message);
+      console.error('[M-Pesa Mock] Error registering C2B URLs:', error.message);
       throw error;
     }
   }
@@ -155,33 +109,32 @@ class MpesaService {
   processCallbackData(callbackData) {
     try {
       const result = {
-        transactionId: callbackData.TransID,
-        receiptNumber: callbackData.TransID,
-        phoneNumber: callbackData.MSISDN,
-        amount: callbackData.TransAmount,
-        transactionDate: callbackData.TransTime,
-        accountReference: callbackData.BillRefNumber,
-        merchantRequestId: callbackData.MerchantRequestID,
-        checkoutRequestId: callbackData.CheckoutRequestID,
-        resultCode: callbackData.ResultCode,
-        resultDesc: callbackData.ResultDesc,
+        transactionId: callbackData.TransID || 'mock-trans-' + Date.now(),
+        receiptNumber: callbackData.TransID || 'mock-receipt-' + Date.now(),
+        phoneNumber: callbackData.MSISDN || '254700000000',
+        amount: callbackData.TransAmount || 0,
+        transactionDate: callbackData.TransTime || new Date().toISOString(),
+        accountReference: callbackData.BillRefNumber || 'MANYANI-RENT',
+        merchantRequestId: callbackData.MerchantRequestID || 'mock-merchant-' + Date.now(),
+        checkoutRequestId: callbackData.CheckoutRequestID || 'mock-checkout-' + Date.now(),
+        resultCode: callbackData.ResultCode || '0',
+        resultDesc: callbackData.ResultDesc || 'Success',
         rawData: callbackData
       };
 
       return result;
     } catch (error) {
-      console.error('Error processing callback data:', error);
+      console.error('[M-Pesa Mock] Error processing callback data:', error);
       throw error;
     }
   }
 
-  // Validate payment (for production use)
+  // Validate payment
   validatePayment(amount, phoneNumber, accountReference) {
-    // Add validation logic here
     const errors = [];
 
-    if (!phoneNumber || !phoneNumber.startsWith('254')) {
-      errors.push('Invalid phone number format. Use 254XXXXXXXXX');
+    if (!phoneNumber || !phoneNumber.toString().match(/^(254|0)[0-9]{9}$/)) {
+      errors.push('Invalid phone number format. Use 254XXXXXXXXX or 0XXXXXXXXX');
     }
 
     if (amount < 1 || amount > 150000) {

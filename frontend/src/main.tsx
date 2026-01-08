@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { ToastContainer } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 import { IntlProvider } from 'react-intl'
 import App from './App'
 import './styles/globals.css'
@@ -32,7 +32,6 @@ const messages = {
     alerts: 'Alerts',
     profile: 'Profile',
     logout: 'Logout',
-    // Add more translations as needed
   },
   sw: {
     welcome: 'Karibu',
@@ -45,7 +44,6 @@ const messages = {
     alerts: 'Tahadhari',
     profile: 'Wasifu',
     logout: 'Toka',
-    // Add more translations as needed
   }
 }
 
@@ -56,7 +54,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         <IntlProvider locale="en" messages={messages.en}>
           <BrowserRouter>
             <App />
-            <ToastContainer 
+            <Toaster 
               position="top-right"
               toastOptions={{
                 duration: 4000,
