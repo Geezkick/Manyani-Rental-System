@@ -1,0 +1,11 @@
+{
+  "name": "Manyani Rental Management",
+  "short_name": "Manyani",
+  "description": "Premium Rental Management System",
+  "theme_color": "#8B4513",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/"
+}
